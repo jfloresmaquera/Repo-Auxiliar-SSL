@@ -19,7 +19,9 @@ typedef struct pila{ //contenido de la pila
 typedef Pila * PilaPtr; // Puntero para acceder a la pila
 
 
-//defimos funciones
+//definimos funciones
+//void deteccionError (int);
+//int length (char expresion[50]); //vamos a ver si lo usamos para diferenciar estado 0
 int selecColumna (char); //Selecciona la columna dependiendo del caracter leido de la expresión
 void insertar(PilaPtr *tope, char dato); //mandas puntero y lo q queres agregar
 char eliminar(PilaPtr *tope);//elimina ultimo nodo y devuelve su dato
@@ -41,20 +43,17 @@ int tamano_maximo=49;
 //La matriz se rellena columna por columna primero delante y luego atras
 //ejemplo:{{(0,0,0),(0,0,1)},{(0,1,0),(0,1,1)},{(0,2,0),(0,2,1)}... y como es un struck se le incertan los datos en vez de () con {}
 datoTT tt[posicionCaracter][cantEstado][valorPila]={
-     {{{3,"$"},{3,"R"}},{{1,"$"},{1,"R"}},{{3,"$"},{3,"R"}},{{3,"$"},{3,"R"}}},    //columna1
-     {{{1,"$"},{1,"R"}},{{1,"$"},{1,"R"}},{{3,"$"},{3,"R"}},{{3,"$"},{3,"R"}}},    //columna2
-     {{{3,"$"},{3,"R"}},{{0,"$"},{0,"R"}},{{0,"$"},{0,"R"}},{{3,"$"},{3,"R"}}},    //columna3
-     {{{0,"R$"},{0,"RR"}},{{3,"$"},{3,"R"}},{{3,"$"},{3,"R"}},{{3,"$"},{3,"R"}}},  //columna4
-     {{{3,"$"},{3,"R"}},{{3,"$"},{2,"Ɛ"}},{{3,"$"},{2,"Ɛ"}},{{3,"$"},{3,"R"}}},    //columna5
-     {{{3,"$"},{3,"R"}},{{3,"$"},{3,"R"}},{{3,"$"},{3,"R"}},{{3,"$"},{3,"R"}}},    //columna6
-     
+     {{{4,"$"},{4,"R"}},{{1,"$"},{1,"R"}},{{4,"$"},{4,"R"}},{{3,"$"},{3,"R"}}},    //columna1
+     {{{1,"$"},{1,"R"}},{{1,"$"},{1,"R"}},{{5,"$"},{5,"R"}},{{3,"$"},{3,"R"}}},    //columna2
+     {{{6,"$"},{6,"R"}},{{0,"$"},{0,"R"}},{{0,"$"},{0,"R"}},{{3,"$"},{3,"R"}}},    //columna3
+     {{{0,"R$"},{0,"RR"}},{{7,"$"},{7,"R"}},{{7,"$"},{7,"R"}},{{3,"$"},{3,"R"}}},  //columna4
+     {{{8,"$"},{8,"R"}},{{8,"$"},{2,"Ɛ"}},{{8,"$"},{2,"Ɛ"}},{{3,"$"},{3,"R"}}},    //columna5
+     {{{3,"$"},{3,"R"}},{{3,"$"},{3,"R"}},{{3,"$"},{3,"R"}},{{3,"$"},{3,"R"}}},    //columna6   
 };
-
-
 
 int main()
 {
-    
+    int longitud;
     do{
         PilaPtr tope=NULL; 
         recExpr=0;
@@ -62,8 +61,10 @@ int main()
         insertar(&tope,'$'); //elemento base de la pila
         printf("Ingrese la expresion que desea averiguar si es valida o invalida\n");
         fgets(expresion, tamano_maximo, stdin);   
-        while(expresion[recExpr]!='\n' && estado!=3) {
-            if(expresion[recExpr]!=32){ // 32 representa espacio en ascii 
+        while(expresion[recExpr]!='\n' && estado<3) 
+        {
+            if(expresion[recExpr]!=32)
+            { // 32 representa espacio en ascii 
                 caracter=selecColumna(expresion[recExpr]); //devuelve la columna en la entra el caracter en al matriz
                 cima=cimaPila(&tope);//averigua si se debe analizar en matriz delantera o trasera ( , ,0) o ( , ,1)
                 auxCopiaDatosMatriz=tt[caracter][estado][cima];
@@ -82,11 +83,60 @@ int main()
             }          
             recExpr++;
         }   
-        
-        if(estado==3||tope->dato!='$'||estado==0){  //condiciones  para que una expresion sea invalida
-            printf("La expresion %s",expresion);
-            printf("es invalida \n");
-        }else{
+        //deteccionError(estado); 
+        if(estado >= 3 || tope->dato!='$' || estado==0)
+        {  //condiciones  para que una expresion sea invalida
+            /*if(tope->dato!='$')
+            {
+                printf("La expresion %s",expresion);
+                printf("es invalida, falta cerrar almenos un parentesis \n");
+            }*/ 
+            switch (estado)
+                {
+                    case 0:
+                        /*longitud = length (expresion);
+                        if (longitud == 0)
+                        {
+                            printf("La expresion %s", expresion);
+                            printf("es invalida, no contiene una expresion. \n");
+                        }else{
+                        printf("La expresion %s",expresion);
+                        printf("es invalida, la expresion esta incompleta. \n");
+                        }*/
+                        printf("La expresion %s",expresion);
+                        printf("es invalida, no contiene una expresion o esta incompleta. \n");
+
+                        break;
+                    case 3:
+                        printf("La expresion %s",expresion);
+                        printf("es invalida, hay al menos un elemento no valido. \n");
+                        break;
+                    case 4:
+                        printf("La expresion %s",expresion);
+                        printf("es invalida, hay al menos un 0 en posicion erronea. \n");
+                        break;
+                    case 5:
+                        printf("La expresion %s",expresion);
+                        printf("es invalida, hay al menos un numero en la posicion incorrecta. \n");
+                        break;
+                    case 6:
+                        printf("La expresion %s",expresion);
+                        printf("es invalida, hay al menos un error con los operadores. \n");
+                        break;
+                    case 7:
+                        printf("La expresion %s", expresion);
+                        printf("es invalida, falta cerrar al menos un parentesis. \n");
+                        break;
+                    case 8:
+                        printf("La expresion %s", expresion);
+                        printf("es invalida, falta abrir al menos un parentesis. \n");
+                        break;
+                    default:
+                        break;
+                }
+        }
+        else
+        {
             printf("La expresion %s",expresion);
             printf("es valida \n");
         }
@@ -100,7 +150,6 @@ int main()
     }while(caractSalida=='y'||caractSalida=='Y');
     return 0;
 }    
-    
 
 int selecColumna (char caracter) 
  {
@@ -134,7 +183,8 @@ int selecColumna (char caracter)
  }
 
 
-void insertar(PilaPtr *tope, char dato){
+void insertar(PilaPtr *tope, char dato)
+{
     PilaPtr nuevo; 
     nuevo=(PilaPtr) malloc(sizeof(Pila));//reservar memoria
     nuevo->dato=dato;
@@ -143,7 +193,8 @@ void insertar(PilaPtr *tope, char dato){
 
 }
 
-char eliminar(PilaPtr *tope){
+char eliminar(PilaPtr *tope)
+{
     PilaPtr temp;
     char dato;
     temp=*tope;
@@ -153,7 +204,8 @@ char eliminar(PilaPtr *tope){
     return dato;
 }
 
-int cimaPila(PilaPtr *tope){
+int cimaPila(PilaPtr *tope)
+{
     
     char aux;
     aux=(*tope)->dato;
@@ -164,3 +216,57 @@ int cimaPila(PilaPtr *tope){
     }
     
 }
+
+/* void deteccionError (int estado)
+{
+    switch (estado)
+        {
+        case 0:
+            printf("La expresion %s", expresion);
+            printf("es invalida, no contiene una expresion. \n");
+            break;
+        case 3:
+            printf("La expresion %s", expresion);
+            printf("es invalida, hay al menos un elemento no valido. \n");
+            break;
+        case 4:
+            printf("La expresion %s", expresion);
+            printf("es invalida, hay al menos un 0 mal puesto. \n");
+            break;
+        case 5:
+            printf("La expresion %s", expresion);
+            printf("es invalida, hay al menos un parentesis de cierre seguido de un numero. \n");
+            break;
+        case 6:
+            printf("La expresion %s", expresion);
+            printf("es invalida, hay un problema con los operadores \n");
+            break;
+        case 7:
+            printf("La expresion %s", expresion);
+            printf("es invalida, falta cerrar al menos un parentesis \n");
+            break;
+        case 8:
+            printf("La expresion %s", expresion);
+            printf("es invalida, falta abrir al menos un parentesis \n");
+            break;
+
+        default:
+            printf("La expresion %s", expresion);
+            printf("es valida \n");
+            break;
+        }
+} */
+//s-senpai, tu error es muy grande (// w //)　🐢
+
+/*int length (char expresion[50])
+{
+    int i=0;
+    while (expresion[i]!= '\0')
+    {
+        i++;
+    }
+    return i-1;
+}*/
+
+//それはまさに彼女が言ったことだ
+
